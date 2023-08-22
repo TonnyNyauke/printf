@@ -85,17 +85,15 @@ int print_non_printable(va_list types, char buffer[],
 	}
 	if (flags & F_PLUS)
 	{
-		if (is_negative)
-			buffer[offset++] = '-';
-		else
+		if (buffer[offset - 1] != '-')
 			buffer[offset++] = '+';
 	}
 	if (flags & F_SPACE)
 	{
-		if (!is_negative && !(flags & F_PLUS))
+		if (buffer[offset - 1] != '-' && buffer[offset - 1] != '+')
 			buffer[offset++] = ' ';
 	}
-	if (flags & F_ALTERNATE)
+	if (flags & F_HASH)
 	{
 		/* Define the behavior of the # flag for strings here */
 		offset += append_custom_prefix(buffer, offset);
@@ -118,10 +116,63 @@ int print_non_printable(va_list types, char buffer[],
 int append_custom_prefix(char buffer[], int offset)
 {
 	char prefix[] = "[PREFIX] ";
-	int prefix_length = strlen(prefix);
+	int prefix_length = 9, i;
 
-	strcpy(buffer + offset, prefix);
+	for (i = 0; prefix[i] != '\0'; i++)
+	{
+		buffer[offset + i] = prefix[i];
+	}
 
 	return (prefix_length);
+}
+/**
+ * print_rot13string - Print a string in rot13.
+ * @types: Lista of arguments
+ * @buffer: Buffer array to handle print
+ * @flags:  Calculates active flags
+ * @width: get width
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Numbers of chars printed
+ */
+int print_rot13string(va_list types, char buffer[],
+	int flags, int width, int precision, int size)
+{
+	char x;
+	char *str;
+	unsigned int i, j;
+	int count = 0;
+	char in[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	char out[] = "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm";
+
+	str = va_arg(types, char *);
+	UNUSED(buffer);
+	UNUSED(flags);
+	UNUSED(width);
+	UNUSED(precision);
+	UNUSED(size);
+
+	if (str == NULL)
+		str = "(AHYY)";
+	for (i = 0; str[i]; i++)
+	{
+		for (j = 0; in[j]; j++)
+		{
+			if (in[j] == str[i])
+			{
+				x = out[j];
+				write(1, &x, 1);
+				count++;
+				break;
+			}
+		}
+		if (!in[j])
+		{
+			x = str[i];
+			write(1, &x, 1);
+			count++;
+		}
+	}
+	return (count);
 }
 

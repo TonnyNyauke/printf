@@ -67,25 +67,24 @@ int print_string(va_list types, char buffer[],
 	}
 	if (precision >= 6)
 		str = "      ";
-	}
 
 	while (str[length] != '\0')
 		length++;
 
-		if (precision >= 0 && precision < length)
-			length = precision;
+	if (precision >= 0 && precision < length)
+		length = precision;
 
-		if (width > length)
+	if (width > length)
+	{
+		if (flags & F_MINUS)
 		{
-			if (flags & F_MINUS)
-			{
-				write(1, &str[0], length);
+			write(1, &str[0], length);
 			for (i = width - length; i > 0; i--)
 				write(1, " ", 1);
 			return (width);
 		}
-			else
-			{
+		else
+		{
 			for (i = width - length; i > 0; i--)
 				write(1, " ", 1);
 			return (width);
